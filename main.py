@@ -1,49 +1,47 @@
-import requests
+import json
+import logging
 from flask import Flask, request, jsonify
+from sender import send_hola_mundo
 
-app = Flask(__name__)
+# Cargar configuración desde config.json
+with open("config.json") as f:
+    config = json.load(f)
 
-# Valores escritos directamente
-PHONE_NUMBER_ID = "698125916724321"  # tu Phone Number ID
-ACCESS_TOKEN    = "EAAXOfSwnZAZBABPEOf0VkEJpdSs2kc9goEQZBaOtbKzfQyYJTMnDMjENETSsu7loPiWYesyrwELL42rw5HgjPGxz4GKMcK9oKwRznjqviIjw7kY8znz5YLnLgMFKnaI5Ovo97tYDfTCFXXo4jADcyrZB0TBVA9lEom7j7wWo45eOoZBli935ebXd7kYyQN9u0FxJr3sipSNrXW197tgeJnRHYtbQJN8Ni8MtZC1QEJwc9B3WUZD"
-VERIFY_TOKEN    = "mi_token_personal"  # el token que configures en Facebook
+PHONE_NUMBER_ID = config["phone_number_id"]
+ACCESS_TOKEN = config["access_token"]
+VERIFY_TOKEN = config["verify_token"]
 
-WH_API_URL = f"https://graph.facebook.com/v23.0/{PHONE_NUMBER_ID}/messages"
+WH_API_URL = f"https://graph.facebook.com/v17.0/{PHONE_NUMBER_ID}/messages"
 HEADERS = {
     "Authorization": f"Bearer {ACCESS_TOKEN}",
     "Content-Type": "application/json"
 }
 
-def send_hola_mundo(to_whatsapp_id: str):
-    payload = {
-        "messaging_product": "whatsapp",
-        "to": to_whatsapp_id,
-        "type": "text",
-        "text": { "body": "¡Hola Mundo!" }
-    }
-    resp = requests.post(WH_API_URL, json=payload, headers=HEADERS)
-    resp.raise_for_status()
-    return resp.json()
+# Inicializar app Flask
+app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
 
 @app.route("/webhook", methods=["GET", "POST"])
 def webhook():
     if request.method == "GET":
-        hub_verify = request.args.get("hub.verify_token")
-        challenge  = request.args.get("hub.challenge")
-        if hub_verify == VERIFY_TOKEN:
-            return challenge, 200
+        if request.args.get("hub.verify_token") == VERIFY_TOKEN:
+            return request.args.get("hub.challenge"), 200
         return "Forbidden", 403
 
     data = request.get_json()
-    for entry in data.get("entry", []):
+    entries = data.get("entry", [])
+
+    for entry in entries:
         for change in entry.get("changes", []):
-            for msg in change.get("value", {}).get("messages", []):
-                whatsapp_id = msg["from"]
-                to_whatsapp = f"whatsapp:+{whatsapp_id}"
-                try:
-                    send_hola_mundo(to_whatsapp)
-                except Exception as e:
-                    app.logger.error(f"Error enviando Hola Mundo: {e}")
+            messages = change.get("value", {}).get("messages", [])
+            for msg in messages:
+                whatsapp_id = msg.get("from")
+                if whatsapp_id:
+                    try:
+                        send_hola_mundo(whatsapp_id, WH_API_URL, HEADERS)
+                        app.logger.info(f"Mensaje enviado a {whatsapp_id}")
+                    except Exception as e:
+                        app.logger.error(f"Error al enviar mensaje: {e}")
     return jsonify(status="received"), 200
 
 if __name__ == "__main__":
