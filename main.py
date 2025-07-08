@@ -1,7 +1,11 @@
 import json
 import logging
 from flask import Flask, request, jsonify
-from sender import send_quick_replies, send_hola_mundo, send_adios_mundo
+from sender import (
+    send_quick_replies,
+    send_hola_mundo,
+    send_adios_mundo,
+)
 
 # Carga config...
 with open("config.json") as f:
@@ -19,6 +23,27 @@ HEADERS    = {
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
+def handle_user_response(wa_id: str, msg: dict):
+    """
+    Procesa la respuesta del usuario y llama a la función correspondiente del sender.
+    """
+    msg_type = msg.get("type")
+
+    # Respuesta a un botón interactivo
+    if msg_type == "interactive":
+        interactive = msg["interactive"]
+        if interactive.get("type") == "button_reply":
+            btn_id = interactive["button_reply"]["id"]
+            if btn_id == "opt_hola":
+                send_hola_mundo(wa_id, WH_API_URL, HEADERS)
+                return
+            if btn_id == "opt_adios":
+                send_adios_mundo(wa_id, WH_API_URL, HEADERS)
+                return
+
+    # Si no es interacción o no se reconoce, enviamos el menú por defecto
+    send_quick_replies(wa_id, WH_API_URL, HEADERS)
+
 @app.route("/webhook", methods=["GET", "POST"])
 def webhook():
     if request.method == "GET":
@@ -31,25 +56,12 @@ def webhook():
     for entry in data.get("entry", []):
         for change in entry.get("changes", []):
             value = change.get("value", {})
-            # Incoming messages or button replies
             for msg in value.get("messages", []):
                 wa_id = msg.get("from")
-                if not wa_id: 
+                if not wa_id:
                     continue
 
-                # Si es respuesta a Quick Reply
-                if msg.get("type") == "interactive":
-                    interactive = msg["interactive"]
-                    if interactive.get("type") == "button_reply":
-                        btn_id = interactive["button_reply"]["id"]
-                        if btn_id == "opt_hola":
-                            send_hola_mundo(wa_id, WH_API_URL, HEADERS)
-                        elif btn_id == "opt_adios":
-                            send_adios_mundo(wa_id, WH_API_URL, HEADERS)
-                        continue
-
-                # Si no es interacción, enviamos el menú
-                send_quick_replies(wa_id, WH_API_URL, HEADERS)
+                handle_user_response(wa_id, msg)
 
     return jsonify(status="received"), 200
 
