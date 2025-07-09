@@ -1,9 +1,4 @@
 {
-  "srv_corte": [],
-  "srv_tinte": [],
-  "srv_lavado": [],
   "corte": [
-    "miercoles",
-    "lunes"
   ]
 }

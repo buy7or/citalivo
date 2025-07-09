@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import config
-
+from handlers.time_handler import prompt_time, handle_time
 from handlers.verify          import handle_verification
 from handlers.service_handler import new_user, handle_selection
 from handlers.day_handler     import handle_day
@@ -14,9 +14,11 @@ def webhook():
         return handle_verification(request.args)
 
     data = request.get_json()
+
     for entry in data.get("entry", []):
         for change in entry.get("changes", []):
             for msg in change.get("value", {}).get("messages", []):
+
                 wa_id = msg.get("from")
                 if not wa_id:
                     continue
@@ -36,7 +38,16 @@ def webhook():
                     raw_id = msg["interactive"]["list_reply"]["id"]
                     day_key = raw_id.replace("day_", "")
                     svc_id  = state["service"]
-                    handle_day(wa_id, svc_id, day_key)
+
+                    # en vez de handle_day:
+                    prompt_time(wa_id, svc_id, day_key)
+                    continue
+
+                if state["step"]=="awaiting_time" and msg.get("type")=="interactive":
+                    slot = msg["interactive"]["list_reply"]["id"].replace("time_","")
+                    svc_id = state["service"]
+                    day   = state["day"]
+                    handle_time(wa_id, svc_id, day, slot)
                     continue
 
     return jsonify(status="received"), 200
