@@ -11,7 +11,7 @@ from sender import (
 
 # Carga configuración
 def load_config():
-    with open("config.json") as f:
+    with open("data/config.json") as f:
         return json.load(f)
 
 config = load_config()

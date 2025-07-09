@@ -1,6 +1,7 @@
 import json
 import requests
 import os
+import logging
 
 # Carga servicios y bloqueos
 def load_json(path):
@@ -9,8 +10,8 @@ def load_json(path):
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
-SERVICES     = load_json("services.json")
-BLOCKED      = load_json("blocked_days.json")
+SERVICES     = load_json("data/services.json")
+BLOCKED      = load_json("data/blocked_days.json")
 
 WH_API_URL   = ""  # Se define en main.py
 HEADERS      = {}
@@ -31,7 +32,9 @@ def send_services_menu(to_whatsapp_id, api_url, headers):
             "action":{"buttons":buttons}
         }
     }
-    return requests.post(api_url,json=payload,headers=headers)
+    resp = requests.post(api_url, json=payload, headers=headers)
+    logging.info(f"send_services_menu → status {resp.status_code}, body {resp.text}")
+    return resp
 
 # Envía menú de días de lunes a viernes
 def send_weekdays_menu(to_whatsapp_id, service_id, api_url, headers):
@@ -69,5 +72,5 @@ def block_day(service_id, day_key):
     if day_key not in blocked:
         blocked.append(day_key)
         BLOCKED[service_id] = blocked
-        with open("blocked_days.json","w",encoding="utf-8") as f:
+        with open("data/blocked_days.json","w",encoding="utf-8") as f:
             json.dump(BLOCKED,f,ensure_ascii=False,indent=2)

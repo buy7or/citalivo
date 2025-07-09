@@ -1,7 +1,10 @@
 {
   "srv_corte": [
+    "monday",
+    "thursday"
   ],
   "srv_tinte": [
+    "monday"
   ],
   "srv_lavado": []
 }
