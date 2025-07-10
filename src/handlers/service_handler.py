@@ -1,4 +1,4 @@
-from sender           import build_services_menu, build_weekdays_menu
+from utils.menu_builder           import build_services_menu, build_weekdays_menu
 from utils.whatsapp_client  import send_message
 from state_store      import set_state
 from storage.services_repo import get_all_services
@@ -21,7 +21,9 @@ def handle_selection(wa_id, msg):
             "Por favor, selecciona un servicio usando los botones.",
             resend_menu=build_services_menu
         )    
+    
     valid_ids = {svc["id"] for svc in get_all_services()}
+    
     if svc_id not in valid_ids:
         raise ValidationError(
             "Servicio no válido. Elige uno de la lista.",

@@ -1,6 +1,6 @@
 # handlers/time_handler.py
 from utils.whatsapp_client import send_message
-from sender import build_times_menu, build_period_menu, build_confirmation_message
+from utils.menu_builder import build_times_menu, build_period_menu, build_confirmation_message
 from storage.timeblock_repo import add_block_slot
 from state_store import clear_state, set_state
 
