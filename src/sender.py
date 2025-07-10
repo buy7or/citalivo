@@ -90,16 +90,13 @@ def build_times_menu(to_whatsapp_id, service_id, day_key, period):
         }
     }
 
-def build_confirmation_message(to_whatsapp_id, service_id, day_key):
-    return {
+def build_confirmation_message(wa_id, service_id, day_key, slot):
+    text = f"✅ ¡Listo! Reservado *{service_id}* el *{day_key.capitalize()}* a las *{slot}*."
+    payload = {
         "messaging_product": "whatsapp",
-        "to": f"whatsapp:+{to_whatsapp_id}",
+        "to": f"whatsapp:+{wa_id}",
         "type": "text",
-        "text": {
-            "body": (
-                f"Has reservado {service_id} el "
-                f"{day_key.capitalize()}. Día bloqueado para futuras reservas."
-            )
-        }
+        "text": {"body": text}
     }
+    return payload
 
