@@ -28,9 +28,25 @@ def webhook():
                     continue
 
                 # 1) Servicio
-                if state["step"] == "awaiting_service" and msg.get("type") == "interactive":
-                    svc_id = msg["interactive"]["button_reply"]["id"]
-                    handle_selection(wa_id, svc_id)
+                if state["step"] == "awaiting_service":
+                    # ¿Es un botón válido?
+                    if msg.get("type") == "interactive" and msg["interactive"].get("button_reply"):
+                        svc_id = msg["interactive"]["button_reply"]["id"]
+                        handle_selection(wa_id, svc_id)
+                    else:
+                        # Respuesta no válida: avisamos y reenviamos menú
+                        from whatsapp_client import send_message
+                        from sender import build_services_menu
+                        send_message({
+                            "messaging_product": "whatsapp",
+                            "to": f"whatsapp:+{wa_id}",
+                            "type": "text",
+                            "text": {"body": "❗️Por favor, selecciona un servicio usando los botones.",}
+                        })
+                        send_message(build_services_menu(wa_id))
+                        # seguimos en mismo estado
+                        from state_store import set_state
+                        set_state(wa_id, {"step": "awaiting_service"})
                     continue
 
                 # 2) Día
