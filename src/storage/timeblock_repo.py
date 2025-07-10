@@ -1,5 +1,6 @@
 # storage/timeblock_repo.py
 import json, os
+from storage.block_repo import add_block
 
 _PATH = "data/blocked_slots.json"
 
@@ -29,3 +30,9 @@ def add_block_slot(service_id, day, slot):
     slots.add(slot)
     svc[day] = sorted(slots)
     _save(data)
+
+     # Comprobamos si ya están todas las franjas de 09:00 a 18:00
+    all_slots = {f"{h:02d}:00" for h in range(9, 19)}
+    if all_slots.issubset(slots):
+        # bloqueamos el día completo para futuras selecciones
+        add_block(service_id, day)
