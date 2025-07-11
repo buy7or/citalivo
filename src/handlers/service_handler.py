@@ -3,7 +3,7 @@ from utils.whatsapp_client  import send_message
 from state_store      import set_state
 from storage.services_repo import get_all_services
 from utils.validators import require_button_reply
-from handlers.errors import safe_handler, ValidationError
+from utils.errors import safe_handler, ValidationError
 
 def new_user(wa_id):
     payload = build_services_menu(wa_id)
@@ -12,15 +12,11 @@ def new_user(wa_id):
 
 @safe_handler
 def handle_selection(wa_id, msg):
-    # 1) validación
-    try:
-        svc_id = require_button_reply(msg)
-    except ValidationError:
-        # Reenvía el menú de servicios
-        raise ValidationError(
-            "Por favor, selecciona un servicio usando los botones.",
-            resend_menu=build_services_menu
-        )    
+    
+    svc_id = require_button_reply(
+        msg,
+        resend_menu=build_services_menu
+    )  
     
     valid_ids = {svc["id"] for svc in get_all_services()}
     

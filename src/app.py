@@ -1,8 +1,8 @@
 # app.py
 from flask import Flask, request, jsonify
-import config
-from handlers.time_handler import prompt_time, handle_time, prompt_period
-from handlers.verify import handle_verification
+from handlers.time_handler import handle_period, handle_time
+from handlers.day_handler import handle_day
+from utils.verify import handle_verification
 from handlers.service_handler import new_user, handle_selection
 from state_store import get_state
 
@@ -33,27 +33,18 @@ def webhook():
                     continue
 
                 # 2) Día
-                if state["step"] == "awaiting_day" and msg.get("type") == "interactive":
-                    raw_id = msg["interactive"]["list_reply"]["id"]
-                    day_key = raw_id.replace("day_", "")
-                    svc_id = state["service"]
-                    prompt_period(wa_id, svc_id, day_key)
+                if state["step"] == "awaiting_day":
+                    handle_day(wa_id,msg)
                     continue
 
                 # 3) Mañana o tarde
-                if state["step"] == "awaiting_period" and msg.get("type") == "interactive":
-                    period = msg["interactive"]["button_reply"]["id"].replace("period_", "")
-                    svc_id = state["service"]
-                    day_key = state["day"]
-                    prompt_time(wa_id, svc_id, day_key, period)
+                if state["step"] == "awaiting_period":
+                    handle_period(wa_id,msg)
                     continue
 
                 # 4) Hora concreta
-                if state["step"] == "awaiting_time" and msg.get("type") == "interactive":
-                    slot = msg["interactive"]["list_reply"]["id"].replace("time_", "")
-                    svc_id = state["service"]
-                    day_key = state["day"]
-                    handle_time(wa_id, svc_id, day_key, slot)
+                if state["step"] == "awaiting_time":
+                    handle_time(wa_id,msg)
                     continue
 
     return jsonify(status="received"), 200
