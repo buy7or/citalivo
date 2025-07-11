@@ -1,6 +1,7 @@
 # app.py
 from flask import Flask, request, jsonify
-from handlers.time_handler import handle_period, handle_time
+from handlers.time_handler import handle_time
+from handlers.period_handler import handle_period
 from handlers.day_handler import handle_day
 from utils.verify import handle_verification
 from handlers.service_handler import new_user, handle_selection

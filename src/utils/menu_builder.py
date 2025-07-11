@@ -65,7 +65,9 @@ def build_period_menu(wa_id):
 def build_times_menu(to_whatsapp_id, service_id, day_key, period):
     # franjas de 09:00 a 18:00
     all_slots = [f"{h:02d}:00" for h in range(9, 19)]
-    blocked = get_blocked_slots(day_key)
+    blocked_items = get_blocked_slots(day_key)
+    
+    blocked_slots = [item["slot"] for item in blocked_items]
 
     # Filtrar según mañana (<13h) o tarde (>=13h)
     if period == "morning":
@@ -73,7 +75,21 @@ def build_times_menu(to_whatsapp_id, service_id, day_key, period):
     else:
         slots = [s for s in all_slots if int(s.split(":")[0]) >= 13]
 
-    available = [s for s in slots if s not in blocked]
+    available = [s for s in slots if s not in blocked_slots]
+    
+    if not available:
+        return {
+            "messaging_product": "whatsapp",
+            "to": f"whatsapp:+{to_whatsapp_id}",
+            "type": "text",
+            "text": {
+                "body": (
+                    "Lo siento, no quedan horas disponibles para ese día. "
+                    "Por favor, elige otro día."
+                )
+            }
+        }
+    
     rows = [{"id": f"time_{slot}", "title": slot} for slot in available]
 
     return {
