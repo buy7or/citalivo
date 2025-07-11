@@ -26,7 +26,7 @@ def build_weekdays_menu(to_whatsapp_id, service_id):
         ("miercoles","Miércoles"),
         ("jueves","Jueves"), ("viernes","Viernes"),
     ]
-    blocked = get_blocked(service_id)
+    blocked = get_blocked()
     rows = [
         {"id": f"day_{key}", "title": name}
         for key, name in weekdays if key not in blocked
@@ -65,7 +65,7 @@ def build_period_menu(wa_id):
 def build_times_menu(to_whatsapp_id, service_id, day_key, period):
     # franjas de 09:00 a 18:00
     all_slots = [f"{h:02d}:00" for h in range(9, 19)]
-    blocked = get_blocked_slots(service_id, day_key)
+    blocked = get_blocked_slots(day_key)
 
     # Filtrar según mañana (<13h) o tarde (>=13h)
     if period == "morning":

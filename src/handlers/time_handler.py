@@ -79,7 +79,7 @@ def handle_time(wa_id, msg):
     slot = raw_id.replace("time_", "")
 
     # 3. Reserva el slot y confirma
-    add_block_slot(svc_id, day_key, slot)
+    add_block_slot(day_key, slot)
     payload = build_confirmation_message(wa_id, svc_id, day_key, slot)
     send_message(payload)
 

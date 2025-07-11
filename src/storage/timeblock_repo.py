@@ -19,20 +19,20 @@ def _save(d):
     with open(_PATH, "w", encoding="utf-8") as f:
         json.dump(d, f, ensure_ascii=False, indent=2)
 
-def get_blocked_slots(service_id, day):
+def get_blocked_slots(day):
     data = _load()
-    return data.get(service_id, {}).get(day, [])
+    return data.get(day, [])
 
-def add_block_slot(service_id, day, slot):
+def add_block_slot(day, slot):
     data = _load()
-    svc = data.setdefault(service_id, {})
-    slots = set(svc.setdefault(day, []))
+    slots = set(data.get(day, []))
     slots.add(slot)
-    svc[day] = sorted(slots)
+    data[day] = sorted(slots)
     _save(data)
 
-     # Comprobamos si ya están todas las franjas de 09:00 a 18:00
+    # Si están bloqueadas todas las franjas de 09:00 a 18:00...
     all_slots = {f"{h:02d}:00" for h in range(9, 19)}
     if all_slots.issubset(slots):
-        # bloqueamos el día completo para futuras selecciones
-        add_block(service_id, day)
+        # bloqueamos cada hora para futuras comprobaciones
+        for full_slot in sorted(all_slots):
+            add_block(day)
