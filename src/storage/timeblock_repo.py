@@ -32,7 +32,6 @@ def add_block_slot(day, slot):
 
     # Si están bloqueadas todas las franjas de 09:00 a 18:00...
     all_slots = {f"{h:02d}:00" for h in range(9, 19)}
+    
     if all_slots.issubset(slots):
-        # bloqueamos cada hora para futuras comprobaciones
-        for full_slot in sorted(all_slots):
-            add_block(day)
+        add_block(day)
