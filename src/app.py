@@ -9,6 +9,8 @@ from storage.state_store import get_state
 
 app = Flask(__name__)
 
+# TODO agregar boton volver atras en todos los menus y que vuelva un estado hacia atrás 
+
 @app.route("/webhook", methods=["GET", "POST"])
 def webhook():
     if request.method == "GET":

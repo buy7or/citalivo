@@ -1,7 +1,7 @@
 # handlers/period_handler.py
 from utils.whatsapp_client import send_message
-from utils.menu_builder import build_times_menu, build_period_menu
-from storage.state_store import set_state, get_state
+from utils.menu_builder import build_times_menu, build_period_menu, build_services_menu
+from storage.state_store import set_state, get_state, clear_state
 from utils.errors import safe_handler, ValidationError
 from utils.validators import require_button_reply
 
@@ -14,9 +14,12 @@ def handle_period(wa_id, msg):
     svc_id  = st.get("service")
     day_key = st.get("day")
     if not svc_id or not day_key:
+        
+        clear_state(wa_id)
+
         raise ValidationError(
-            "Ha ocurrido un error interno. Reinicia el flujo.",
-            resend_menu=build_period_menu,
+            "Ha ocurrido un error. Volvamos a empezar.",
+            resend_menu=build_services_menu,
             menu_args=[]
         )
 

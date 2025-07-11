@@ -6,6 +6,7 @@ from storage.state_store import clear_state, get_state
 from utils.errors import safe_handler, ValidationError
 from utils.validators import require_list_reply
 
+# TODO comprobar que la hora enviada es una hora existente del menu
 
 @safe_handler
 def handle_time(wa_id, msg):
@@ -15,6 +16,16 @@ def handle_time(wa_id, msg):
     day_key = st.get("day")
     period  = st.get("period")
 
+
+    if not all([svc_id, day_key, period]):
+        
+        clear_state(wa_id)
+        raise ValidationError(
+            "Ha ocurrido un error. Volvamos a empezar.",
+            resend_menu=build_services_menu,
+            menu_args=[]
+        )
+    
     # 2. Validar y extraer el ID de la lista
     raw_id = require_list_reply(
         msg,
