@@ -2,7 +2,7 @@
 from utils.whatsapp_client import send_message
 from utils.menu_builder import build_times_menu, build_period_menu, build_confirmation_message, build_services_menu
 from storage.timeblock_repo import add_block_slot
-from state_store import clear_state, set_state, get_state
+from storage.state_store import clear_state, set_state, get_state
 from utils.errors import safe_handler, ValidationError
 from utils.validators import require_button_reply,require_list_reply
 

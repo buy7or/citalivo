@@ -1,5 +1,5 @@
 import requests
-import config
+import utils.config as config
 
 def send_message(payload):
     """Envía cualquier payload al API de WhatsApp y retorna la respuesta."""

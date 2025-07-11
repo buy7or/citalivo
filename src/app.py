@@ -4,7 +4,7 @@ from handlers.time_handler import handle_period, handle_time
 from handlers.day_handler import handle_day
 from utils.verify import handle_verification
 from handlers.service_handler import new_user, handle_selection
-from state_store import get_state
+from storage.state_store import get_state
 
 app = Flask(__name__)
 

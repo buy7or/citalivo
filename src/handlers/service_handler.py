@@ -1,6 +1,6 @@
 from utils.menu_builder           import build_services_menu, build_weekdays_menu
 from utils.whatsapp_client  import send_message
-from state_store      import set_state
+from storage.state_store      import set_state
 from storage.services_repo import get_all_services
 from utils.validators import require_button_reply
 from utils.errors import safe_handler, ValidationError

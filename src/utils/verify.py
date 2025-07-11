@@ -1,5 +1,5 @@
 from flask import abort
-import config
+import utils.config as config
 
 def handle_verification(args):
     """Devuelve hub.challenge si el token es correcto, si no 403."""
