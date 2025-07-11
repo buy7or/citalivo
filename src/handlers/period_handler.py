@@ -9,10 +9,6 @@ from utils.validators import require_button_reply
 
 @safe_handler
 def handle_period(wa_id, msg):
-    """
-    Valida que venga button_reply, que el id sea uno de los esperados,
-    y lanza prompt_time. Si falla, reenvía build_period_menu.
-    """
     # 1) Recuperar estado previo
     st = get_state(wa_id)
     svc_id  = st.get("service")

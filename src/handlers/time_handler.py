@@ -9,23 +9,11 @@ from utils.validators import require_list_reply
 
 @safe_handler
 def handle_time(wa_id, msg):
-    """
-    1) Valida que venga list_reply; si no, reenvía build_times_menu con service, day y period.
-    2) Extrae slot, lo reserva y confirma.
-    3) Limpia estado.
-    """
     # 1. Recuperar datos del estado
     st = get_state(wa_id)
     svc_id  = st.get("service")
     day_key = st.get("day")
     period  = st.get("period")
-    if not all([svc_id, day_key, period]):
-        # Si falta algo, reiniciamos todo el flujo de selección de servicio
-        raise ValidationError(
-            "Ha ocurrido un error interno. Empecemos de nuevo.",
-            resend_menu=build_services_menu,  
-            menu_args=[]
-        )
 
     # 2. Validar y extraer el ID de la lista
     raw_id = require_list_reply(
@@ -36,15 +24,11 @@ def handle_time(wa_id, msg):
     slot = raw_id.replace("time_", "")
 
     if not is_slot_available(day_key, slot):
-        send_message({
-            "messaging_product": "whatsapp",
-            "to": f"whatsapp:+{wa_id.split('@')[0]}",
-            "type": "text",
-            "text": {
-                "body": "Lo siento, esa hora ya ha sido reservada. Por favor elige otra."
-            }
-        })
-        return
+        raise ValidationError(
+            "Disculpe, esa hora acaba de ser reservada. Por favor seleccione otra.",
+            resend_menu=build_times_menu,
+            menu_args=[svc_id, day_key, period]
+        )
     
     # 3. Reserva el slot y confirma
     phone = wa_id.split("@")[0]
