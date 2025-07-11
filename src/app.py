@@ -23,7 +23,7 @@ def webhook():
                     continue
 
                 state = get_state(wa_id)
-                if not state:
+                if not state and msg.get("type") == "text":
                     new_user(wa_id)
                     continue
 
